@@ -14,7 +14,7 @@ export default function WalletConnect({ onConnect }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] relative">
+    <div className="min-h-screen w-full bg-[#0a0a0a] flex items-center justify-center relative">
       <div className="text-center px-4">
         <h1 className="text-6xl lg:text-7xl font-bold text-white mb-4">
           Make Your Voice Heard

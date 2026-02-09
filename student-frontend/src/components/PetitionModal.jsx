@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Check, Loader2 } from 'lucide-react';
 import ConfirmSignModal from './ConfirmSignModal';
+import ClosePetitionConfirmModal from './ClosePetitionConfirmModal';
 import { useSignatureCheck } from '../hooks/useSignatureCheck';
 
 const toBase58 = (value) => {
@@ -22,7 +23,9 @@ export default function PetitionModal({
   onClosePetition,
 }) {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const [signing, setSigning] = useState(false);
+  const [closing, setClosing] = useState(false);
 
   const { hasSigned, checking, recheck } = useSignatureCheck(petition.address);
 
@@ -48,10 +51,16 @@ export default function PetitionModal({
   };
 
   const handleCloseClick = () => {
-    if (
-      window.confirm('Are you sure you want to close this petition? This action cannot be undone.')
-    ) {
-      onClosePetition(petition);
+    setShowCloseConfirm(true);
+  };
+
+  const handleConfirmClose = async () => {
+    setShowCloseConfirm(false);
+    setClosing(true);
+    try {
+      await onClosePetition(petition);
+    } finally {
+      setClosing(false);
     }
   };
 
@@ -68,7 +77,7 @@ export default function PetitionModal({
                   onClick={handleCloseClick}
                   className="bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 px-4 py-2 rounded-lg text-sm font-medium border border-red-500/30 transition-all"
                 >
-                  Close Petition
+                  {closing ? 'Closing...' : 'Close Petition'}
                 </button>
               )}
               <button
@@ -149,6 +158,13 @@ export default function PetitionModal({
         <ConfirmSignModal
           onConfirm={handleConfirmSign}
           onCancel={() => setShowConfirm(false)}
+        />
+      )}
+
+      {showCloseConfirm && (
+        <ClosePetitionConfirmModal
+          onConfirm={handleConfirmClose}
+          onCancel={() => setShowCloseConfirm(false)}
         />
       )}
     </>

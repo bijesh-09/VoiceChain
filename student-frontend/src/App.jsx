@@ -36,7 +36,7 @@ function App() {
   return (
     <HomePage
       walletAddress={wallet.publicKey?.toBase58() ?? ''}//passing connected wallet addr to the homepage ui
-      onDisconnect={handleDisconnect}
+      onDisconnect={handleDisconnect}//onDisconnect triggers when user clicks disconnect button
     />
   );
 }

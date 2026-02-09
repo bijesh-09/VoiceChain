@@ -3,16 +3,15 @@ import { X } from 'lucide-react';
 export default function WalletSelectModal({ onSelect, onClose }) {
   return (
     <div className="fixed inset-0 backdrop-blur-md bg-black/60 flex items-center justify-center z-50">
-      <div className="w-96 bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-gray-700 p-6 shadow-2xl">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Select Wallet</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+      <div className="w-96 bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-gray-700 p-6 shadow-2xl relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+        >
+          <X className="w-6 h-6" />
+        </button>
+
+        <h2 className="text-xl font-bold text-white mb-6">Select Wallet</h2>
 
         <div className="space-y-3">
           <button
