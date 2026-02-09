@@ -1,0 +1,32 @@
+.anchor
+.DS_Store
+target
+**/*.rs.bk
+node_modules
+test-ledger
+.yarn
+
+# Ignore all keypairs for security
+**/*.json
+!package.json
+!package-lock.json
+!Anchor.toml
+!tsconfig.json
+!target/idl/*.json 
+!student-frontend/src/student_voice.json
+
+# --- Node & Frontend ---
+student-frontend/node_modules/
+dist/
+build/
+.env*
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- System & Editors ---
+.vscode/
+.idea/
+*.swp
+*.log
