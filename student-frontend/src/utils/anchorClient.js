@@ -5,7 +5,14 @@ import idl from '../student_voice.json';
 //this file contains the methods that will be used in hooks
 
 //idl: represents the instructions and accoutns defined in the program deployed on chain, in a json strucutre 
-export const PROGRAM_ID = new PublicKey(idl.address);//get the program_id using idl
+const idlAddress = idl.address ?? idl.metadata?.address;
+
+if (!idlAddress) {
+  throw new Error('IDL address is missing. Ensure the frontend IDL is up to date.');
+}
+
+export const PROGRAM_ID = new PublicKey(idlAddress);//get the program_id using idl
+
 
 //provider is the current user wallet and connection to the solana network, it is used to send transactions and interact with the program
 //connection: simply a gateway for frontend to talk with solana devnet's node(program deployed on chain)
