@@ -5,7 +5,7 @@ declare_id!("2W5dbkzx4H6iLLeXH1syvmjHusFnQHbL9tbjQ6VGVB4j");
 
 #[program]
 pub mod student_voice {
-    use super::*;
+    use super::*;//imports all the modules of the parent module which is rn the whole program module, to this scope 
 
     pub fn initialize_platform(ctx: Context<InitializePlatform>) -> Result<()> {
         let platform = &mut ctx.accounts.platform;
@@ -16,6 +16,8 @@ pub mod student_voice {
         Ok(())
     }
 
+    //the contexts in the fn arg defines the account's address, simply the accounts that this fn is gonna need
+    //later on we provide the pda of accounts to the fns in frontend that maps to these onchain fns, so that we can fetch the account through rpc
     pub fn create_petition(ctx: Context<CreatePetition>, title: String, description: String) -> Result<()> {
         require!(title.len() > 0 && title.len() <= 200, ErrorCode::InvalidTitle);
         require!(description.len() > 0 && description.len() <= 5000, ErrorCode::InvalidDescription);
@@ -69,6 +71,8 @@ pub mod student_voice {
     }
 }
 
+//defininf the data fields of accounts
+//only one account struct can be defined under one #[account] macro, same goes for derived account macro
 #[account]
 pub struct Platform {
     pub admin_address: Pubkey,
@@ -109,20 +113,21 @@ impl Signature {
 #[derive(Accounts)]
 pub struct InitializePlatform<'info> {
     #[account(mut)]
-    pub admin: Signer<'info>,
-    pub system_program: Program<'info, System>,
-    #[account(init, payer = admin, space = Platform::LEN, seeds = [b"platform"], bump)]
-    pub platform: Account<'info, Platform>,
+    pub admin: Signer<'info>,//admin is the signer when init platform, and is mutable, cuz signging transaction costs sol, or lamports modification
+    pub system_program: Program<'info, System>,//this is not mutable, cuz only one acc under #account macro
+    #[account(init, payer = admin, space = Platform::LEN, seeds = [b"platform"], bump)]//constants like Platform::LEN are available in all scopes
+    pub platform: Account<'info, Platform>,//creating platform account with the "platform" seed
 }
 
 #[derive(Accounts)]
 pub struct CreatePetition<'info> {
     #[account(mut)]
     pub creator: Signer<'info>,
+    // needed "petition" as well as total_petitions to make current petition unique
     #[account(init, payer = creator, space = Petition::LEN, seeds = [b"petition", platform.total_petitions.to_le_bytes().as_ref()], bump)]
     pub petition: Account<'info, Petition>,
     #[account(mut, seeds = [b"platform"], bump)]
-    pub platform: Account<'info, Platform>,
+    pub platform: Account<'info, Platform>,//needed platform account to incrememnt total petitions later on in the fn
     pub system_program: Program<'info, System>,
 }
 
@@ -141,13 +146,13 @@ pub struct SignPetition<'info> {
         payer = signer,
         space = Signature::LEN,
         seeds = [
-            b"signature",
+            b"signature",//needed petition address, and signer address to make each signature unique
             petition.key().as_ref(),
             signer.key().as_ref()
         ],
         bump
     )]
-    pub signature: Account<'info, Signature>,
+    pub signature: Account<'info, Signature>,//signature account represents a unique signature
     pub system_program: Program<'info, System>,
 }
 
@@ -157,13 +162,13 @@ pub struct ClosePetition<'info> {
         seeds = [b"platform"],
         bump
     )]
-    pub platform: Account<'info, Platform>,
+    pub platform: Account<'info, Platform>,//if authority is admin
     #[account(
         mut,
         seeds = [b"petition", petition.seed.to_le_bytes().as_ref()],
         bump
     )]
-    pub petition: Account<'info, Petition>,
+    pub petition: Account<'info, Petition>,//if authority is creator
     #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
