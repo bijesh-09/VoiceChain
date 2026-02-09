@@ -15,15 +15,15 @@ export const usePetitions = () => {
     try {
       const program = getProgram(wallet, connection);
       const [platformPDA] = getPlatformPDA();
-      
-      const platform = await program.account.platform.fetch(platformPDA);
+
+      const platform = await program.account.Platform.fetch(platformPDA);
       const totalPetitions = platform.totalPetitions.toNumber();
 
       const petitionPromises = [];//its an array of object of Premises, for this case the Premises are the resolved petitions
       for (let i = 0; i < totalPetitions; i++) {
         const [petitionPDA] = getPetitionPDA(i);
         petitionPromises.push(
-          program.account.petition.fetch(petitionPDA).then(data => ({//when the ith id petition is fetched then an promise resolves into object of ...data(rest operator) and pda of petition
+          program.account.Petition.fetch(petitionPDA).then(data => ({//when the ith id petition is fetched then an promise resolves into object of ...data(rest operator) and pda of petition
             ...data,
             address: petitionPDA,
           }))

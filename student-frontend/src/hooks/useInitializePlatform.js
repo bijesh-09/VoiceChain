@@ -17,8 +17,8 @@ export const useInitializePlatform = () => {
     try {
       const program = getProgram(wallet, connection);
       const [platformPDA] = getPlatformPDA();
-      
-      await program.account.platform.fetch(platformPDA);
+
+      await program.account.Platform.fetch(platformPDA);
       setPlatformExists(true);
     } catch (error) {
       setPlatformExists(false);

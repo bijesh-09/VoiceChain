@@ -16,9 +16,9 @@ export const useSignatureCheck = (petitionAddress) => {
     try {
       const program = getProgram(wallet, connection);
       const [signaturePDA] = getSignaturePDA(petitionAddress, wallet.publicKey);//returns the address of the signature account if exists, if doesnt exists also its fine, the address will be where the signatuer acc will be if it will exist in the future
-      
+
       // Try to fetch signature account
-      await program.account.signature.fetch(signaturePDA);
+      await program.account.Signature.fetch(signaturePDA);
       setHasSigned(true); // If fetch succeeds, user has signed
     } catch (error) {
       setHasSigned(false); // If fetch fails, user hasn't signed

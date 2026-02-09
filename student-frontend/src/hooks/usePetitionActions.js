@@ -9,8 +9,8 @@ export const usePetitionActions = () => {
   const createPetition = async (title, description) => {
     const program = getProgram(wallet, connection);
     const [platformPDA] = getPlatformPDA();
-    
-    const platform = await program.account.platform.fetch(platformPDA);
+
+    const platform = await program.account.Platform.fetch(platformPDA);
     const petitionId = platform.totalPetitions.toNumber();
 
     const [petitionPDA] = getPetitionPDA(petitionId);
