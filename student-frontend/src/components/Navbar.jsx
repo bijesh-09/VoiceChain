@@ -5,14 +5,14 @@ export default function Navbar({ walletAddress, onDisconnect }) {
       : walletAddress;
 
   return (
-    <nav className="fixed top-0 w-full bg-gray-900/80 backdrop-blur-lg border-b border-gray-800 h-18 px-8 flex items-center justify-between z-40">
+    <nav className="fixed top-0 w-full bg-gray-900/95 backdrop-blur-lg border-b border-gray-800 h-20 px-8 flex items-center justify-between z-50">
       <div className="text-xl font-bold text-white">VoiceChain</div>
 
       <div className="flex items-center gap-6">
-        <button className="text-gray-400 hover:text-white transition-colors px-4 cursor-pointer">
+        <button className="text-gray-400 hover:text-white transition-colors px-4">
           Home
         </button>
-        <button className="text-gray-400 hover:text-white transition-colors px-4 cursor-pointer">
+        <button className="text-gray-400 hover:text-white transition-colors px-4">
           About
         </button>
       </div>
