@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { getProgram, getSignaturePDA } from '../utils/anchorClient';
 
+//useSignatureCheck only checks wheteher the current user has signed the opened petition or not, 
 export const useSignatureCheck = (petitionAddress) => {
   const { connection } = useConnection();
   const wallet = useWallet();
@@ -14,7 +15,7 @@ export const useSignatureCheck = (petitionAddress) => {
 
     try {
       const program = getProgram(wallet, connection);
-      const [signaturePDA] = getSignaturePDA(petitionAddress, wallet.publicKey);
+      const [signaturePDA] = getSignaturePDA(petitionAddress, wallet.publicKey);//returns the address of the signature account if exists, if doesnt exists also its fine, the address will be where the signatuer acc will be if it will exist in the future
       
       // Try to fetch signature account
       await program.account.signature.fetch(signaturePDA);
@@ -28,7 +29,7 @@ export const useSignatureCheck = (petitionAddress) => {
 
   useEffect(() => {
     checkSignature();
-  }, [wallet.publicKey, petitionAddress]);
+  }, [wallet.publicKey, petitionAddress]);//checks signature only when users wallet addr changes or user switch to another petiton
 
   return { hasSigned, checking, recheck: checkSignature };
 };

@@ -16,8 +16,8 @@ export const usePetitionActions = () => {
     const [petitionPDA] = getPetitionPDA(petitionId);
 
     await program.methods
-      .createPetition(title, description)
-      .accounts({
+      .createPetition(title, description)//here this createPetition is not the "reatePetition = async (title, description)" we defined above, rather it maps to the create_petition fn in onchain program, the name of this fn can be anything here
+      .accounts({//assigning addresses to the accounts to create petition under given accounts , which can only be done by talking fronend ot backend using rpc
         creator: wallet.publicKey,
         petition: petitionPDA,
         platform: platformPDA,
@@ -28,7 +28,7 @@ export const usePetitionActions = () => {
 
   const signPetition = async (petition) => {
     const program = getProgram(wallet, connection);
-    const petitionPDA = petition.address;
+    const petitionPDA = petition.address;//here the petition.address represents the pda of current petition, where the address key was assigned with pda looping thorugh total_petitions, beofre when fethcPetitions() called by usePetitions.js
 
     const [signaturePDA] = getSignaturePDA(petitionPDA, wallet.publicKey);
 
@@ -59,5 +59,5 @@ export const usePetitionActions = () => {
       .rpc();
   };
 
-  return { createPetition, signPetition, closePetition };
+  return { createPetition, signPetition, closePetition }; //can be later destructured in components
 };
