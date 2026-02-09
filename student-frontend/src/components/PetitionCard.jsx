@@ -2,6 +2,7 @@ import { Users } from 'lucide-react';
 
 export default function PetitionCard({ petition, onClick }) {
   const getPreview = (text) => {
+    if (!text) return '';
     if (text.length <= 120) return text;
     return text.substring(0, 120) + '...';
   };
@@ -19,10 +20,12 @@ export default function PetitionCard({ petition, onClick }) {
         {getPreview(petition.description)}
       </p>
       <div className="flex justify-between items-center mt-4">
-        <span className="text-xs text-gray-500">Created by {petition.creator}</span>
+        <span className="text-xs text-gray-500">
+          Created by {petition.creatorDisplay}
+        </span>
         <div className="flex items-center gap-1 text-sm text-teal-400">
           <Users className="w-4 h-4" />
-          <span>{petition.signatures} signatures</span>
+          <span>{petition.signatureCount} signatures</span>
         </div>
       </div>
     </div>

@@ -10,16 +10,14 @@ export default function CreatePetitionModal({ onClose, onCreate }) {
     if (!title.trim() || !description.trim()) return;
 
     setCreating(true);
-
-    // Simulate blockchain transaction
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    onCreate({
-      title: title.trim(),
-      description: description.trim()
-    });
-
-    setCreating(false);
+    try {
+      await onCreate({
+        title: title.trim(),
+        description: description.trim(),
+      });
+    } finally {
+      setCreating(false);
+    }
   };
 
   const canCreate = title.trim().length > 0 && description.trim().length > 0;
