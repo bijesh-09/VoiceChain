@@ -6,6 +6,7 @@ import { Buffer } from 'buffer';
 //this file contains the methods that will be used in hooks
 
 //idl: represents the instructions and accoutns defined in the program deployed on chain, in a json strucutre 
+console.log('IDL loaded:', idl); // DEBUG: Check if IDL is actually loaded
 const idlAddress = idl.address ?? idl.metadata?.address;
 
 if (!idlAddress) {
