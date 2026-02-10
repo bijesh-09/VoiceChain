@@ -160,7 +160,7 @@ export default function HomePage({ walletAddress, onDisconnect }) {
                         Initializing Platform...
                       </span>
                     ) : (
-                      '🚀 Initialize Platform (Admin Only)'
+                      'Initialize Platform (Admin Only)'
                     )}
                   </button>
 
