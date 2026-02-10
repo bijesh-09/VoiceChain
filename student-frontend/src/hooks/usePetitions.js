@@ -23,7 +23,7 @@ export const usePetitions = () => {
       const totalPetitions = platform.totalPetitions.toNumber();
 
       const petitionPromises = [];//its an array of object of Premises, for this case the Premises are the resolved petitions
-      for (let i = 0; i < totalPetitions; i++) {
+      for (let i = totalPetitions - 1; i >= 0; i--) {//looping from totalPetitions-1 to 0, because we want to show the latest petition first, and the latest petition will be at the end of the list when we loop through totalPetitions
         const [petitionPDA] = getPetitionPDA(i);
         petitionPromises.push(
           program.account.petition.fetch(petitionPDA).then(data => ({//when the ith id petition is fetched then an promise resolves into object of ...data(rest operator) and pda of petition
