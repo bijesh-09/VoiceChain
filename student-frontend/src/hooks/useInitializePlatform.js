@@ -6,12 +6,15 @@ import { getProgram, getPlatformPDA } from '../utils/anchorClient';
 export const useInitializePlatform = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
-  const [platformExists, setPlatformExists] = useState(null);
+  const [platformExists, setPlatformExists] = useState(false);
   const [checking, setChecking] = useState(false);
   const [initializing, setInitializing] = useState(false);
 
   const checkPlatformExists = async () => {
-    if (!wallet.publicKey) return;
+    if (!wallet.publicKey) {
+      console.log('Wallet not connected, skipping platform existence check');
+      return;
+    } 
     setChecking(true);
 
     try {
@@ -21,6 +24,7 @@ export const useInitializePlatform = () => {
       await program.account.Platform.fetch(platformPDA);
       setPlatformExists(true);
     } catch (error) {
+      console.error('Error checking platform existence:', error);
       setPlatformExists(false);
     } finally {
       setChecking(false);
@@ -52,6 +56,7 @@ export const useInitializePlatform = () => {
       return tx;
     } catch (error) {
       console.error('Failed to initialize platform:', error);
+      setPlatformExists(false);
       throw error;
     } finally {
       setInitializing(false);

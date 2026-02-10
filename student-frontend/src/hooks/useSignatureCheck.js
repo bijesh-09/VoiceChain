@@ -21,6 +21,7 @@ export const useSignatureCheck = (petitionAddress) => {
       await program.account.Signature.fetch(signaturePDA);
       setHasSigned(true); // If fetch succeeds, user has signed
     } catch (error) {
+      console.error('Error checking signature:', error);
       setHasSigned(false); // If fetch fails, user hasn't signed
     } finally {
       setChecking(false);
@@ -29,7 +30,7 @@ export const useSignatureCheck = (petitionAddress) => {
 
   useEffect(() => {
     checkSignature();
-  }, [wallet.publicKey, petitionAddress]);//checks signature only when users wallet addr changes or user switch to another petiton
+  }, [wallet.publicKey, petitionAddress, checkSignature]);//checks signature only when users wallet addr changes or user switch to another petiton
 
   return { hasSigned, checking, recheck: checkSignature };
 };

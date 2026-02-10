@@ -43,7 +43,7 @@ export default function HomePage({ walletAddress, onDisconnect }) {
 
   useEffect(() => {
     checkPlatformExists();
-  }, [walletAddress]);
+  }, [walletAddress, checkPlatformExists]);
 
   const displayPetitions = useMemo(() => {
     return petitions.map((petition) => {

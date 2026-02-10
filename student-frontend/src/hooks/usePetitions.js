@@ -9,7 +9,10 @@ export const usePetitions = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchPetitions = async () => {
-    if (!wallet.publicKey) return;//exit early if no user wallet connected
+    if (!wallet.publicKey){
+      setPetitions([]);//if no user wallet connected then set petitions to empty array
+      return;//exit early if no user wallet connected
+    }
     setLoading(true);//set loading to true when we start fetching petitions
 
     try {
@@ -42,7 +45,7 @@ export const usePetitions = () => {
 
   useEffect(() => {//useeffect calls the fetchpetition() whenever the wallet pubkey changes
     fetchPetitions();
-  }, [wallet.publicKey]);
+  }, [wallet.publicKey, fetchPetitions]);
 
   return { petitions, loading, refetch: fetchPetitions };//returning these so that the it can be destrucutured and used in commponents, 
   //refetch() i,e,e fetchPetitions() is used whenever the petition is created, to update the ui

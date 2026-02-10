@@ -1,6 +1,7 @@
 import * as anchor from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 import idl from '../student_voice.json';
+import { Buffer } from 'buffer';
 
 //this file contains the methods that will be used in hooks
 
