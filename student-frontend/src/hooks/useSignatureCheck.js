@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { getProgram, getSignaturePDA } from '../utils/anchorClient';
+import { getSignaturePDA } from '../utils/anchorClient';
 
-//useSignatureCheck only checks wheteher the current user has signed the opened petition or not, 
+// useSignatureCheck only checks whether the current user has signed the opened petition or not
 export const useSignatureCheck = (petitionAddress) => {
   const { connection } = useConnection();
   const wallet = useWallet();
@@ -10,27 +10,30 @@ export const useSignatureCheck = (petitionAddress) => {
   const [checking, setChecking] = useState(false);
 
   const checkSignature = useCallback(async () => {
-    if (!wallet.publicKey || !petitionAddress) return;
+    if (!wallet.publicKey || !petitionAddress) {
+      setHasSigned(false);
+      return;
+    }
+
     setChecking(true);
-
     try {
-      const program = getProgram(wallet, connection);
-      const [signaturePDA] = getSignaturePDA(petitionAddress, wallet.publicKey);//returns the address of the signature account if exists, if doesnt exists also its fine, the address will be where the signatuer acc will be if it will exist in the future
+      const [signaturePDA] = getSignaturePDA(petitionAddress, wallet.publicKey);
 
-      // Try to fetch signature account
-      await program.account.Signature.fetch(signaturePDA);
-      setHasSigned(true); // If fetch succeeds, user has signed
+      // More robust than program.account.signature.fetch(...) in production:
+      // just check whether the signature PDA account exists.
+      const accountInfo = await connection.getAccountInfo(signaturePDA, 'confirmed');
+      setHasSigned(!!accountInfo);
     } catch (error) {
       console.error('Error checking signature:', error);
-      setHasSigned(false); // If fetch fails, user hasn't signed
+      setHasSigned(false);
     } finally {
       setChecking(false);
     }
-  }, [wallet, connection, petitionAddress]);
+  }, [connection, petitionAddress, wallet.publicKey]);
 
   useEffect(() => {
     checkSignature();
-  }, [checkSignature]);//checks signature only when checkSignature changes
+  }, [checkSignature]);
 
   return { hasSigned, checking, recheck: checkSignature };
 };
