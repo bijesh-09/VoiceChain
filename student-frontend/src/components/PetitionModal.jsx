@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { X, Check, Loader2 } from 'lucide-react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import ConfirmSignModal from './ConfirmSignModal';
 import ClosePetitionConfirmModal from './ClosePetitionConfirmModal';
 import { useSignatureCheck } from '../hooks/useSignatureCheck';
+import { getProgram } from '../utils/anchorClient';
 
 const toBase58 = (value) => {
   if (!value) return '';
@@ -13,6 +15,18 @@ const toBase58 = (value) => {
 const shortenAddress = (address) => {
   if (!address) return '—';
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
+};
+
+const toNumber = (value) => {
+  if (value === null || value === undefined) return 0;
+  if (typeof value.toNumber === 'function') return value.toNumber();
+  return Number(value);
+};
+
+const formatSignedAt = (value) => {
+  const ts = toNumber(value);
+  if (!ts) return '—';
+  return new Date(ts * 1000).toLocaleString();
 };
 
 export default function PetitionModal({
@@ -26,15 +40,72 @@ export default function PetitionModal({
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const [signing, setSigning] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [justSigned, setJustSigned] = useState(false);
+  const [signatures, setSignatures] = useState([]);
+  const [signaturesLoading, setSignaturesLoading] = useState(false);
+  const [signaturesError, setSignaturesError] = useState(null);
+
+  const { connection } = useConnection();
+  const wallet = useWallet();
 
   const { hasSigned, checking, recheck } = useSignatureCheck(petition.address);
 
   const creatorAddress = toBase58(petition.creator);
   const isCreator = creatorAddress === walletAddress;
   const isClosed = petition.isClosed;
+  const isSigned = hasSigned || justSigned;
+
+  const fetchSignatures = useCallback(async () => {
+    if (!wallet.publicKey || !petition.address) {
+      setSignatures([]);
+      return;
+    }
+
+    setSignaturesLoading(true);
+    setSignaturesError(null);
+
+    try {
+      const program = getProgram(wallet, connection);
+      const signatureAccountClient = program.account?.signature;
+
+      if (!signatureAccountClient?.all) {
+        setSignatures([]);
+        return;
+      }
+
+      const signatureAccounts = await signatureAccountClient.all([
+        {
+          memcmp: {
+            // Signature account: discriminator (8) + signer (32) = 40 bytes before current_petition
+            offset: 40,
+            bytes: petition.address.toBase58(),
+          },
+        },
+      ]);
+
+      const mappedSignatures = signatureAccounts
+        .map((item) => ({
+          signer: toBase58(item.account.signer),
+          signedAt: item.account.signedAt ?? item.account.signed_at,
+        }))
+        .sort((a, b) => toNumber(b.signedAt) - toNumber(a.signedAt));
+
+      setSignatures(mappedSignatures);
+    } catch (error) {
+      console.error('Error fetching signature list:', error);
+      setSignaturesError('Could not load signature list right now.');
+      setSignatures([]);
+    } finally {
+      setSignaturesLoading(false);
+    }
+  }, [connection, petition.address, wallet]);
+
+  useEffect(() => {
+    fetchSignatures();
+  }, [fetchSignatures]);
 
   const handleSignClick = () => {
-    if (!hasSigned && !isClosed) {
+    if (!isSigned && !isClosed) {
       setShowConfirm(true);
     }
   };
@@ -45,6 +116,8 @@ export default function PetitionModal({
     try {
       await onSign(petition);
       await recheck();
+      setJustSigned(true);
+      await fetchSignatures();
     } finally {
       setSigning(false);
     }
@@ -63,6 +136,9 @@ export default function PetitionModal({
       setClosing(false);
     }
   };
+
+  const visibleSignatures = useMemo(() => signatures.slice(0, 20), [signatures]);
+  const hiddenSignaturesCount = Math.max(signatures.length - visibleSignatures.length, 0);
 
   return (
     <>
@@ -111,8 +187,38 @@ export default function PetitionModal({
               {petition.signatureCount} signatures
             </div>
 
-            <div className="text-sm text-gray-500">
-              Signatures are stored on-chain. (Signature list UI can be added later.)
+            <div className="space-y-3">
+              <div className="text-sm text-gray-400 font-medium">Recent signatures</div>
+
+              {signaturesLoading && (
+                <div className="text-sm text-gray-500">Loading signatures...</div>
+              )}
+
+              {!signaturesLoading && signaturesError && (
+                <div className="text-sm text-red-400">{signaturesError}</div>
+              )}
+
+              {!signaturesLoading && !signaturesError && visibleSignatures.length === 0 && (
+                <div className="text-sm text-gray-500">No signatures yet.</div>
+              )}
+
+              {!signaturesLoading && !signaturesError && visibleSignatures.length > 0 && (
+                <div className="space-y-2">
+                  {visibleSignatures.map((signature, index) => (
+                    <div
+                      key={`${signature.signer}-${index}`}
+                      className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-900/50 px-3 py-2"
+                    >
+                      <span className="text-sm text-gray-300">{shortenAddress(signature.signer)}</span>
+                      <span className="text-xs text-gray-500">{formatSignedAt(signature.signedAt)}</span>
+                    </div>
+                  ))}
+
+                  {hiddenSignaturesCount > 0 && (
+                    <div className="text-xs text-gray-500">+{hiddenSignaturesCount} more...</div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -123,9 +229,9 @@ export default function PetitionModal({
             </div>
             <button
               onClick={handleSignClick}
-              disabled={hasSigned || signing || checking || isClosed}
+              disabled={isSigned || signing || checking || isClosed}
               className={`w-full py-3 rounded-lg font-semibold text-lg transition-all ${
-                hasSigned
+                isSigned
                   ? 'bg-green-500/20 text-green-400 border border-green-500/50 cursor-not-allowed'
                   : isClosed
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
@@ -134,7 +240,7 @@ export default function PetitionModal({
                   : 'bg-teal-500 hover:bg-teal-600 text-white shadow-lg shadow-teal-500/30'
               }`}
             >
-              {hasSigned ? (
+              {isSigned ? (
                 <span className="flex items-center justify-center gap-2">
                   <Check className="w-5 h-5" />
                   Signed ✓
