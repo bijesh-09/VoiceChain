@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { SystemProgram } from '@solana/web3.js';
 import { getProgram, getPlatformPDA, getPetitionPDA, getSignaturePDA } from '../utils/anchorClient';
@@ -6,11 +7,11 @@ export const usePetitionActions = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
 
-  const createPetition = async (title, description) => {
+  const createPetition = useCallback(async (title, description) => {
     const program = getProgram(wallet, connection);
     const [platformPDA] = getPlatformPDA();
 
-    const platform = await program.account.Platform.fetch(platformPDA);
+    const platform = await program.account.platform.fetch(platformPDA);
     const petitionId = platform.totalPetitions.toNumber();
 
     const [petitionPDA] = getPetitionPDA(petitionId);
@@ -24,9 +25,9 @@ export const usePetitionActions = () => {
         systemProgram: SystemProgram.programId,
       })
       .rpc();
-  };
+  }, [connection, wallet]);
 
-  const signPetition = async (petition) => {
+  const signPetition = useCallback(async (petition) => {
     const program = getProgram(wallet, connection);
     const petitionPDA = petition.address;//here the petition.address represents the pda of current petition, where the address key was assigned with pda looping thorugh total_petitions, beofre when fethcPetitions() called by usePetitions.js
 
@@ -41,9 +42,9 @@ export const usePetitionActions = () => {
         systemProgram: SystemProgram.programId,
       })
       .rpc();
-  };
+  }, [connection, wallet]);
 
-  const closePetition = async (petition) => {
+  const closePetition = useCallback(async (petition) => {
     const program = getProgram(wallet, connection);
     const [platformPDA] = getPlatformPDA();
     const petitionPDA = petition.address;
@@ -57,7 +58,7 @@ export const usePetitionActions = () => {
         systemProgram: SystemProgram.programId,
       })
       .rpc();
-  };
+  }, [connection, wallet]);
 
   return { createPetition, signPetition, closePetition }; //can be later destructured in components
 };

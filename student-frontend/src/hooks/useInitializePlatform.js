@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { SystemProgram } from '@solana/web3.js';
 import { getProgram, getPlatformPDA } from '../utils/anchorClient';
@@ -6,32 +6,41 @@ import { getProgram, getPlatformPDA } from '../utils/anchorClient';
 export const useInitializePlatform = () => {
   const { connection } = useConnection();
   const wallet = useWallet();
-  const [platformExists, setPlatformExists] = useState(false);
+  const [platformExists, setPlatformExists] = useState(null);
   const [checking, setChecking] = useState(false);
   const [initializing, setInitializing] = useState(false);
 
-  const checkPlatformExists = async () => {
+  const checkPlatformExists = useCallback(async () => {
     if (!wallet.publicKey) {
-      console.log('Wallet not connected, skipping platform existence check');
+      setPlatformExists(null);
       return;
-    } 
+    }
     setChecking(true);
 
     try {
       const program = getProgram(wallet, connection);
       const [platformPDA] = getPlatformPDA();
 
-      await program.account.Platform.fetch(platformPDA);
+      await program.account.platform.fetch(platformPDA);
       setPlatformExists(true);
     } catch (error) {
       console.error('Error checking platform existence:', error);
-      setPlatformExists(false);
+
+      const message = String(error?.message ?? '').toLowerCase();
+      const accountMissing =
+        message.includes('account does not exist') ||
+        message.includes('could not find account') ||
+        message.includes('not found');
+
+      if (accountMissing) {
+        setPlatformExists(false);
+      }
     } finally {
       setChecking(false);
     }
-  };
+  }, [connection, wallet]);
 
-  const initializePlatform = async () => {
+  const initializePlatform = useCallback(async () => {
     if (!wallet.publicKey) {
       throw new Error('Wallet not connected');
     }
@@ -56,12 +65,11 @@ export const useInitializePlatform = () => {
       return tx;
     } catch (error) {
       console.error('Failed to initialize platform:', error);
-      setPlatformExists(false);
       throw error;
     } finally {
       setInitializing(false);
     }
-  };
+  }, [connection, wallet]);
 
   return {
     platformExists,

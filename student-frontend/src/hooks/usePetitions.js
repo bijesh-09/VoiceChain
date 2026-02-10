@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { getProgram, getPlatformPDA, getPetitionPDA } from '../utils/anchorClient';
 
@@ -8,8 +8,8 @@ export const usePetitions = () => {
   const [petitions, setPetitions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchPetitions = async () => {
-    if (!wallet.publicKey){
+  const fetchPetitions = useCallback(async () => {
+    if (!wallet.publicKey) {
       setPetitions([]);//if no user wallet connected then set petitions to empty array
       return;//exit early if no user wallet connected
     }
@@ -19,14 +19,14 @@ export const usePetitions = () => {
       const program = getProgram(wallet, connection);
       const [platformPDA] = getPlatformPDA();
 
-      const platform = await program.account.Platform.fetch(platformPDA);
+      const platform = await program.account.platform.fetch(platformPDA);
       const totalPetitions = platform.totalPetitions.toNumber();
 
       const petitionPromises = [];//its an array of object of Premises, for this case the Premises are the resolved petitions
       for (let i = 0; i < totalPetitions; i++) {
         const [petitionPDA] = getPetitionPDA(i);
         petitionPromises.push(
-          program.account.Petition.fetch(petitionPDA).then(data => ({//when the ith id petition is fetched then an promise resolves into object of ...data(rest operator) and pda of petition
+          program.account.petition.fetch(petitionPDA).then(data => ({//when the ith id petition is fetched then an promise resolves into object of ...data(rest operator) and pda of petition
             ...data,
             address: petitionPDA,
           }))
@@ -41,11 +41,11 @@ export const usePetitions = () => {
     } finally {
       setLoading(false);//in the end setloading has to be false
     }
-  };
+  }, [connection, wallet]);
 
-  useEffect(() => {//useeffect calls the fetchpetition() whenever the wallet pubkey changes
+  useEffect(() => {//useeffect calls the fetchpetition() whenever fetchPetitions changes
     fetchPetitions();
-  }, [wallet.publicKey, fetchPetitions]);
+  }, [fetchPetitions]);
 
   return { petitions, loading, refetch: fetchPetitions };//returning these so that the it can be destrucutured and used in commponents, 
   //refetch() i,e,e fetchPetitions() is used whenever the petition is created, to update the ui

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { getProgram, getSignaturePDA } from '../utils/anchorClient';
 
@@ -9,7 +9,7 @@ export const useSignatureCheck = (petitionAddress) => {
   const [hasSigned, setHasSigned] = useState(false);
   const [checking, setChecking] = useState(false);
 
-  const checkSignature = async () => {
+  const checkSignature = useCallback(async () => {
     if (!wallet.publicKey || !petitionAddress) return;
     setChecking(true);
 
@@ -26,11 +26,11 @@ export const useSignatureCheck = (petitionAddress) => {
     } finally {
       setChecking(false);
     }
-  };
+  }, [wallet, connection, petitionAddress]);
 
   useEffect(() => {
     checkSignature();
-  }, [wallet.publicKey, petitionAddress, checkSignature]);//checks signature only when users wallet addr changes or user switch to another petiton
+  }, [checkSignature]);//checks signature only when checkSignature changes
 
   return { hasSigned, checking, recheck: checkSignature };
 };
