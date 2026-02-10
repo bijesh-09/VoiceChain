@@ -9,7 +9,7 @@ In many Nepal colleges, student petitions are usually run through Google Forms o
 VoiceChain is a decentralized student petition platform built on Solana Devnet. Students connect their wallet (Phantom or Solflare), create petitions, and sign them on-chain. Every signature is a permanent, publicly verifiable blockchain record that cannot be silently edited, faked, or deleted.
 
 ## Live Demo
-> LiveWebsite url: [link]  
+> Live Website: https://studentvoicechain.netlify.app/  
 > Demo video: [link]  
 > Program on Solana Explorer: https://explorer.solana.com/address/2W5dbkzx4H6iLLeXH1syvmjHusFnQHbL9tbjQ6VGVB4j?cluster=devnet
 
@@ -61,6 +61,7 @@ VoiceChain uses three core account types. `Platform` is a singleton that stores 
 ### Prerequisites
 - Node.js v18+
 - Yarn
+- npm
 - Phantom or Solflare browser extension
 - Wallet network set to **Solana Devnet**
 - Devnet SOL in wallet (faucet: https://faucet.solana.com)
@@ -81,7 +82,7 @@ Connect wallet (Devnet) and start using the app.
 ### Otherwise 
 Visit:
 ```bash
-
+https://studentvoicechain.netlify.app/
 ```
 Connect your wallet(Phantom or Solflare) on Devnet mode and start using the app.
 
