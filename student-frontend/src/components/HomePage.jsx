@@ -69,14 +69,24 @@ export default function HomePage({ walletAddress, onDisconnect }) {
   }, [petitions]);
 
   const handleInitializePlatform = async () => {
-    setInitError(null);
-    try {
-      await initializePlatform();
+  setInitError(null);
+  try {
+    await initializePlatform();
+    await checkPlatformExists();
+    await refetch();
+  } catch (error) {
+    const message = String(error?.message ?? 'Failed to initialize platform');
+
+    if (message.toLowerCase().includes('already in use')) {
+      await checkPlatformExists();
       await refetch();
-    } catch (error) {
-      setInitError(error.message || 'Failed to initialize platform');
+      return;
     }
-  };
+
+    setInitError(message);
+  }
+};
+
 
   const handleCreatePetition = async ({ title, description }) => {
     await createPetition(title, description);
@@ -178,7 +188,7 @@ export default function HomePage({ walletAddress, onDisconnect }) {
                 onClick={() => setShowCreateModal(true)}
                 className="group relative px-8 py-4 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-bold rounded-xl shadow-2xl shadow-teal-500/50 hover:shadow-teal-500/70 transition-all duration-300 transform hover:scale-105"
               >
-                <span className="relative z-10 text-lg">✨ Create Petition</span>
+                <span className="relative z-10 text-lg">Create Petition</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-cyan-400 rounded-xl blur opacity-50 group-hover:opacity-75 transition-opacity"></div>
               </button>
             )}
