@@ -26,7 +26,7 @@ export const getProvider = (wallet, connection) =>
 //program is the client side instance of the on chain profram, it is obtained using idl, programid and provider so that the instance of program is available to the current user to interact with all the fns of the on chaain porgram
 export const getProgram = (wallet, connection) => {
   const provider = getProvider(wallet, connection);
-  return new anchor.Program(idl, PROGRAM_ID, provider);
+  return new anchor.Program(idl, provider);
 };
 
 //PDAs are simply the addresses of the accounts defined in onchain proram
