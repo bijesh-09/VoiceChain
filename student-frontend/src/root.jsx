@@ -9,7 +9,11 @@ import App from './App.jsx';
 
 export const Root = () => {
     //usememo is used to prevent recreating OBJECTS on every render so that the rpc, and walletadapters wont change everytime it is created
-    const endpoint = useMemo(() => clusterApiUrl('devnet'), []);//endpoint is a string that holds the solana devnet cluster api irl
+    const endpoint = useMemo(
+        () => import.meta.env.VITE_RPC_URL || clusterApiUrl('devnet'),
+        []
+    );//endpoint is a string that holds the solana devnet cluster api irl
+    
     const wallets = useMemo(//here ()=>[] return array of wallet adapter objects, [] means the objects are created only once
         () => [
             new PhantomWalletAdapter(),
