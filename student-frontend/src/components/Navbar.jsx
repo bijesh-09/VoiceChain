@@ -1,4 +1,4 @@
-export default function Navbar({ walletAddress, onDisconnect }) {
+export default function Navbar({ walletAddress, onDisconnect, currentPage, onNavigate }) {
   const shortAddress =
     walletAddress && walletAddress.length > 8
       ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`
@@ -9,10 +9,24 @@ export default function Navbar({ walletAddress, onDisconnect }) {
       <div className="text-xl font-bold text-white">VoiceChain</div>
 
       <div className="flex items-center gap-6">
-        <button className="text-gray-400 hover:text-white transition-colors px-4">
+        <button
+          onClick={() => onNavigate('home')}
+          className={`px-4 pb-1 transition-colors border-b-2 ${
+            currentPage === 'home'
+              ? 'text-white border-teal-400'
+              : 'text-gray-400 border-transparent hover:text-white'
+          }`}
+        >
           Home
         </button>
-        <button className="text-gray-400 hover:text-white transition-colors px-4">
+        <button
+          onClick={() => onNavigate('about')}
+          className={`px-4 pb-1 transition-colors border-b-2 ${
+            currentPage === 'about'
+              ? 'text-white border-teal-400'
+              : 'text-gray-400 border-transparent hover:text-white'
+          }`}
+        >
           About
         </button>
       </div>

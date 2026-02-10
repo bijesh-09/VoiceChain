@@ -3,6 +3,7 @@ import { X, Check, Loader2 } from 'lucide-react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import ConfirmSignModal from './ConfirmSignModal';
 import ClosePetitionConfirmModal from './ClosePetitionConfirmModal';
+import SignerDetailModal from './SignerDetailModal';
 import { useSignatureCheck } from '../hooks/useSignatureCheck';
 import { getProgram } from '../utils/anchorClient';
 
@@ -44,6 +45,7 @@ export default function PetitionModal({
   const [signatures, setSignatures] = useState([]);
   const [signaturesLoading, setSignaturesLoading] = useState(false);
   const [signaturesError, setSignaturesError] = useState(null);
+  const [selectedSigner, setSelectedSigner] = useState(null);
 
   const { connection } = useConnection();
   const wallet = useWallet();
@@ -172,7 +174,15 @@ export default function PetitionModal({
             </p>
 
             <div className="text-sm text-gray-500">
-              Created by {shortenAddress(creatorAddress)} on {petition.createdDate}
+              Created by{' '}
+              <button
+                type="button"
+                onClick={() => setSelectedSigner({ signer: creatorAddress, signedAt: null })}
+                className="text-teal-400 hover:text-teal-300 transition-colors"
+              >
+                {shortenAddress(creatorAddress)}
+              </button>{' '}
+              on {petition.createdDate}
             </div>
 
             {isClosed && (
@@ -205,13 +215,15 @@ export default function PetitionModal({
               {!signaturesLoading && !signaturesError && visibleSignatures.length > 0 && (
                 <div className="space-y-2">
                   {visibleSignatures.map((signature, index) => (
-                    <div
+                    <button
                       key={`${signature.signer}-${index}`}
-                      className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-900/50 px-3 py-2"
+                      type="button"
+                      onClick={() => setSelectedSigner(signature)}
+                      className="w-full flex items-center justify-between rounded-lg border border-gray-800 bg-gray-900/50 px-3 py-2 hover:border-teal-500/40 transition-colors"
                     >
                       <span className="text-sm text-gray-300">{shortenAddress(signature.signer)}</span>
                       <span className="text-xs text-gray-500">{formatSignedAt(signature.signedAt)}</span>
-                    </div>
+                    </button>
                   ))}
 
                   {hiddenSignaturesCount > 0 && (
@@ -271,6 +283,14 @@ export default function PetitionModal({
         <ClosePetitionConfirmModal
           onConfirm={handleConfirmClose}
           onCancel={() => setShowCloseConfirm(false)}
+        />
+      )}
+
+      {selectedSigner && (
+        <SignerDetailModal
+          signerAddress={selectedSigner.signer}
+          signedAt={selectedSigner.signedAt}
+          onClose={() => setSelectedSigner(null)}
         />
       )}
     </>
