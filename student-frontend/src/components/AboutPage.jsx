@@ -10,11 +10,12 @@ export default function AboutPage() {
             Built by <span className="text-teal-400 font-semibold">Bijesh Karanjit</span>
           </p>
           <p className="text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            A CS student from Samriddhi College, Nepal. Currently working on getting a frontend web dev intern. Main goal: Machine learning
-            Good project done by me: 
-            Project1: https://github.com/Samriddhi-HTML-Group-Project/TravelPlanner -- Uses firebase authentication, and firestore (built by 50% me, 50% team)
-            Project2: https://github.com/bijesh-09/VoiceChain -- ts is repo of this dApp lol
-            Habits: Always asking WHY behind the How's
+            A CS student from Samriddhi College, Nepal. <br />
+            Currently working on getting a frontend web dev intern. Main goal: Machine learning <br />
+            Good project done by me: <br />
+            Project1: https://github.com/Samriddhi-HTML-Group-Project/TravelPlanner -- Uses firebase authentication, and firestore (built by 50% me, 50% team) <br />
+            Project2: https://github.com/bijesh-09/VoiceChain -- ts is repo of this dApp lol <br />
+            Habits: Always asking WHY behind the How's <br />
             Interests: wanna learn singing,boy enjoys watching animes
           </p>
         </div>
